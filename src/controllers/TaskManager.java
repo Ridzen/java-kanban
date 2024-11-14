@@ -1,3 +1,5 @@
+package controllers;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,16 +40,18 @@ public class TaskManager {
         }
     }
 
-    public Map<Integer, Task> getAllTasks() {
-        return tasks;
+    public ArrayList<Task> getTasks() {
+        return new ArrayList<>(tasks.values());
     }
 
-    public Map<Integer, Epic> getAllEpics() {
-        return epics;
+    public ArrayList<Epic> getEpics() {
+        return new ArrayList<>(epics.values());
     }
-    public Map<Integer, Subtask> getAllSubtasks() {
-        return subtasks;
+
+    public ArrayList<Subtask> getSubtasks() {
+        return new ArrayList<>(subtasks.values());
     }
+
 
     public void clearTasks() {
         tasks.clear();

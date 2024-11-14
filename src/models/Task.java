@@ -1,3 +1,5 @@
+package models;
+
 public class Task {
     private int id; // Уникальный идентификационный номер задачи
     private String name; // Название
