@@ -82,6 +82,37 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void updateSubtask(Subtask subtask) {
         subtasks.put(subtask.getId(), subtask);
+        Epic epic = epics.get(subtask.getEpicId());
+        if (epic != null) {
+            updateEpicStatus(epic); // Пересчитываем статус Epic
+        }
+    }
+
+    private void updateEpicStatus(Epic epic) {
+        if (epic.getSubtasks().isEmpty()) {
+            epic.setStatus(TaskStatus.NEW);
+            return;
+        }
+
+        boolean allNew = true;
+        boolean allDone = true;
+
+        for (Subtask subtask : epic.getSubtasks()) {
+            if (subtask.getStatus() != TaskStatus.NEW) {
+                allNew = false;
+            }
+            if (subtask.getStatus() != TaskStatus.DONE) {
+                allDone = false;
+            }
+        }
+
+        if (allNew) {
+            epic.setStatus(TaskStatus.NEW);
+        } else if (allDone) {
+            epic.setStatus(TaskStatus.DONE);
+        } else {
+            epic.setStatus(TaskStatus.IN_PROGRESS);
+        }
     }
 
     @Override
@@ -122,7 +153,12 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void clearSubtasks() {
         subtasks.clear();
+        for (Epic epic : epics.values()) {
+            epic.clearSubtasks();
+            updateEpicStatus(epic);
+        }
     }
+
     @Override
     public List<Task> getAllTasks() {
         return new ArrayList<>(tasks.values());
