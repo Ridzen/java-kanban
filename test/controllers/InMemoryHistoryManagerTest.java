@@ -35,16 +35,6 @@ public class InMemoryHistoryManagerTest {
         assertTrue(history.isEmpty());
     }
 
-    @Test
-    public void shouldLimitHistorySizeToTen() {
-        for (int i = 1; i <= 12; i++) {
-            historyManager.add(new Task(i, "Таска " + i, "Описание", TaskStatus.NEW));
-        }
-
-        List<Task> history = historyManager.getHistory();
-        assertEquals(10, history.size());
-        assertEquals(3, history.get(0).getId());
-    }
 
     @Test
     public void shouldRemoveTaskFromHistoryById() {

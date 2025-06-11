@@ -31,16 +31,5 @@ public class HistoryManagerTest {
         List<Task> history = historyManager.getHistory();
         assertTrue(history.isEmpty());
     }
-
-    @Test
-    public void shouldLimitHistoryToTenEntries() {
-        for (int i = 0; i < 12; i++) {
-            historyManager.add(new Task(i, "Таска " + i, "Описание", TaskStatus.NEW));
-        }
-
-        List<Task> history = historyManager.getHistory();
-        assertEquals(10, history.size());
-        assertEquals(2, history.get(0).getId());
-    }
 }
 
