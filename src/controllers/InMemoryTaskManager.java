@@ -3,6 +3,7 @@ package controllers;
 import models.Task;
 import models.Epic;
 import models.Subtask;
+import models.TaskStatus;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -154,7 +155,7 @@ public class InMemoryTaskManager implements TaskManager {
     public void clearSubtasks() {
         subtasks.clear();
         for (Epic epic : epics.values()) {
-            epic.clearSubtasks();
+            //            epic.clearSubtasks();
             updateEpicStatus(epic);
         }
     }
