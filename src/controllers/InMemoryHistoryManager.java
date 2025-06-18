@@ -2,24 +2,76 @@ package controllers;
 
 import models.Task;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class InMemoryHistoryManager implements HistoryManager {
-    private final List<Task> history = new ArrayList<>();
+
+    private static class Node {
+        Task task;
+        Node prev;
+        Node next;
+
+        Node(Node prev, Task task, Node next) {
+            this.task = task;
+            this.prev = prev;
+            this.next = next;
+        }
+    }
+
+    private final Map<Integer, Node> nodeMap = new HashMap<>();
+    private Node head;
+    private Node tail;
 
     @Override
     public void add(Task task) {
-        if (task != null) {
-            history.add(task);
-            if (history.size() > 10) {
-                history.remove(0);
-            }
+        if (task == null) return;
+
+        int id = task.getId();
+        remove(id); // если задача уже есть в истории — удалим
+
+        Node newNode = new Node(tail, task, null);
+        if (tail != null) {
+            tail.next = newNode;
+        } else {
+            head = newNode; // первая запись
+        }
+        tail = newNode;
+        nodeMap.put(id, newNode);
+    }
+
+    @Override
+    public void remove(int id) {
+        Node node = nodeMap.remove(id);
+        if (node != null) {
+            removeNode(node);
+        }
+    }
+
+    private void removeNode(Node node) {
+        Node prev = node.prev;
+        Node next = node.next;
+
+        if (prev != null) {
+            prev.next = next;
+        } else {
+            head = next; // если удаляем голову
+        }
+
+        if (next != null) {
+            next.prev = prev;
+        } else {
+            tail = prev; // если удаляем хвост
         }
     }
 
     @Override
     public List<Task> getHistory() {
-        return new ArrayList<>(history);
+        List<Task> result = new ArrayList<>();
+        Node current = head;
+        while (current != null) {
+            result.add(current.task);
+            current = current.next;
+        }
+        return result;
     }
 }

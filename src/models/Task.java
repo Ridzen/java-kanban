@@ -1,10 +1,10 @@
 package models;
 
 public class Task {
-    private int id; // Уникальный идентификационный номер задачи
-    private String name; // Название
-    private String description; // Аке Описание задачи
-    private TaskStatus status; // Статус , не забыть про енамку
+    private int id; // Уникальный идентификатор задачи
+    private String name; // Название задачи
+    private String description; // Что нужно сделать
+    private TaskStatus status; // Статус: NEW, IN_PROGRESS, DONE
 
     public Task(int id, String name, String description, TaskStatus status) {
         this.id = id;
@@ -25,10 +25,12 @@ public class Task {
         return name;
     }
 
-    public String getDescription() {return description;}
-
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getDescription() {
+        return description;
     }
 
     public void setDescription(String description) {
@@ -44,11 +46,15 @@ public class Task {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Task task = (Task) o;
-        return id == task.id;
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+        Task other = (Task) obj;
+        return id == other.id;
     }
 
     @Override
@@ -58,10 +64,10 @@ public class Task {
 
     @Override
     public String toString() {
-        return "Task{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", status=" + status +
-                '}';
+        return "Task{"
+                + "id=" + id
+                + ", name='" + name + '\''
+                + ", status=" + status
+                + '}';
     }
 }
