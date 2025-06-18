@@ -24,14 +24,12 @@ public class FileBackedTaskManager implements TaskManager {
 
     private int currentId = 1;
 
-
     public FileBackedTaskManager(Path file) {
         this.file = file;
         if (Files.exists(file)) {
             load();
         }
     }
-
 
     public static FileBackedTaskManager loadFromFile(Path file) {
         return new FileBackedTaskManager(file);
@@ -64,7 +62,9 @@ public class FileBackedTaskManager implements TaskManager {
         subtask.setId(generateId());
         subtasks.put(subtask.getId(), subtask);
         Epic parent = epics.get(subtask.getEpicId());
-        if (parent != null) parent.addSubtask(subtask);
+        if (parent != null) {
+            parent.addSubtask(subtask);
+        }
         save();
     }
 
@@ -72,7 +72,7 @@ public class FileBackedTaskManager implements TaskManager {
     public Task getTask(int id) {
         Task t = tasks.get(id);
         historyManager.add(t);
-        save(); // сохраняем и историю
+        save();
         return t;
     }
 
@@ -117,16 +117,20 @@ public class FileBackedTaskManager implements TaskManager {
         tasks.put(task.getId(), task);
         save();
     }
+
     @Override
     public void updateEpic(Epic epic) {
         epics.put(epic.getId(), epic);
         save();
     }
+
     @Override
     public void updateSubtask(Subtask subtask) {
         subtasks.put(subtask.getId(), subtask);
         Epic parent = epics.get(subtask.getEpicId());
-        if (parent != null) parent.updateStatus();
+        if (parent != null) {
+            parent.updateStatus();
+        }
         save();
     }
 
@@ -136,6 +140,7 @@ public class FileBackedTaskManager implements TaskManager {
         historyManager.remove(id);
         save();
     }
+
     @Override
     public void deleteEpicById(int id) {
         Epic epic = epics.remove(id);
@@ -148,13 +153,16 @@ public class FileBackedTaskManager implements TaskManager {
         }
         save();
     }
+
     @Override
     public void deleteSubtaskById(int id) {
         Subtask s = subtasks.remove(id);
         historyManager.remove(id);
         if (s != null) {
             Epic parent = epics.get(s.getEpicId());
-            if (parent != null) parent.removeSubtask(s);
+            if (parent != null) {
+                parent.removeSubtask(s);
+            }
         }
         save();
     }
@@ -185,16 +193,23 @@ public class FileBackedTaskManager implements TaskManager {
         save();
     }
 
-
     private void save() {
         try (BufferedWriter w = Files.newBufferedWriter(file, StandardCharsets.UTF_8)) {
-
-            w.write("tеype, id, name, status, description, epic");
+            w.write("type,id,name,status,description,epic");
             w.newLine();
 
-            for (Task t : getAllTasks()) { w.write(taskToString(t)); w.newLine(); }
-            for (Epic e : getAllEpics()) { w.write(taskToString(e)); w.newLine(); }
-            for (Subtask s : getAllSubtasks()) { w.write(taskToString(s)); w.newLine(); }
+            for (Task t : getAllTasks()) {
+                w.write(taskToString(t));
+                w.newLine();
+            }
+            for (Epic e : getAllEpics()) {
+                w.write(taskToString(e));
+                w.newLine();
+            }
+            for (Subtask s : getAllSubtasks()) {
+                w.write(taskToString(s));
+                w.newLine();
+            }
 
             w.newLine();
             w.write(historyToString());
@@ -220,23 +235,28 @@ public class FileBackedTaskManager implements TaskManager {
             }
             for (Subtask s : subtasks.values()) {
                 Epic parent = epics.get(s.getEpicId());
-                if (parent != null) parent.addSubtask(s);
+                if (parent != null) {
+                    parent.addSubtask(s);
+                }
             }
 
             String historyLine = r.readLine();
             if (historyLine != null && !historyLine.isBlank()) {
                 for (String idStr : historyLine.split(",")) {
                     int id = Integer.parseInt(idStr.trim());
-                    if (tasks.containsKey(id)) historyManager.add(tasks.get(id));
-                    else if (epics.containsKey(id)) historyManager.add(epics.get(id));
-                    else if (subtasks.containsKey(id)) historyManager.add(subtasks.get(id));
+                    if (tasks.containsKey(id)) {
+                        historyManager.add(tasks.get(id));
+                    } else if (epics.containsKey(id)) {
+                        historyManager.add(epics.get(id));
+                    } else if (subtasks.containsKey(id)) {
+                        historyManager.add(subtasks.get(id));
+                    }
                 }
             }
         } catch (IOException ex) {
             throw new RuntimeException("Ошибка чтения файла " + file, ex);
         }
     }
-
 
     private String taskToString(Task t) {
         String type = (t instanceof Epic) ? "EPIC" : (t instanceof Subtask) ? "SUBTASK" : "TASK";
@@ -246,7 +266,9 @@ public class FileBackedTaskManager implements TaskManager {
                 .append(escape(t.getName())).append(',')
                 .append(t.getStatus()).append(',')
                 .append(escape(t.getDescription())).append(',');
-        if (t instanceof Subtask s) sb.append(s.getEpicId());
+        if (t instanceof Subtask s) {
+            sb.append(s.getEpicId());
+        }
         return sb.toString();
     }
 
@@ -267,8 +289,12 @@ public class FileBackedTaskManager implements TaskManager {
 
     private String historyToString() {
         StringBuilder sb = new StringBuilder();
-        for (Task t : historyManager.getHistory()) sb.append(t.getId()).append(',');
-        if (!sb.isEmpty()) sb.setLength(sb.length() - 1); // remove trailing comma
+        for (Task t : historyManager.getHistory()) {
+            sb.append(t.getId()).append(',');
+        }
+        if (!sb.isEmpty()) {
+            sb.setLength(sb.length() - 1);
+        }
         return sb.toString();
     }
 
@@ -285,10 +311,17 @@ public class FileBackedTaskManager implements TaskManager {
         StringBuilder cur = new StringBuilder();
         boolean esc = false;
         for (char c : line.toCharArray()) {
-            if (esc) { cur.append(c); esc = false; }
-            else if (c == '\\') esc = true;
-            else if (c == ',') { parts.add(cur.toString()); cur.setLength(0); }
-            else cur.append(c);
+            if (esc) {
+                cur.append(c);
+                esc = false;
+            } else if (c == '\\') {
+                esc = true;
+            } else if (c == ',') {
+                parts.add(cur.toString());
+                cur.setLength(0);
+            } else {
+                cur.append(c);
+            }
         }
         parts.add(cur.toString());
         return parts.toArray(new String[0]);
