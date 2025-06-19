@@ -1,13 +1,15 @@
+import controllers.FileBackedTaskManager;
 import controllers.TaskManager;
-import controllers.Managers;
 import models.Task;
 import models.Epic;
 import models.Subtask;
 import models.TaskStatus;
 
+import java.nio.file.Paths;
+
 public class Main {
     public static void main(String[] args) {
-        TaskManager manager = Managers.getDefault();
+        TaskManager manager = new FileBackedTaskManager(Paths.get("tasks.csv"));
 
         Task task1 = new Task(0, "Task 1.2", "Description 1", TaskStatus.NEW);
         Task task2 = new Task(0, "Task 2б", "Description 2", TaskStatus.NEW);

@@ -1,10 +1,10 @@
 package models;
 
 public class Task {
-    private int id; // Уникальный идентификатор задачи
-    private String name; // Название задачи
-    private String description; // Что нужно сделать
-    private TaskStatus status; // Статус: NEW, IN_PROGRESS, DONE
+    private int id;
+    private String name;
+    private String description;
+    private TaskStatus status;
 
     public Task(int id, String name, String description, TaskStatus status) {
         this.id = id;
@@ -45,14 +45,14 @@ public class Task {
         this.status = status;
     }
 
+    public TaskType getType() {
+        return TaskType.TASK;
+    }
+
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null || getClass() != obj.getClass()) {
-            return false;
-        }
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
         Task other = (Task) obj;
         return id == other.id;
     }
@@ -64,10 +64,10 @@ public class Task {
 
     @Override
     public String toString() {
-        return "Task{"
-                + "id=" + id
-                + ", name='" + name + '\''
-                + ", status=" + status
-                + '}';
+        return "Task{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", status=" + status +
+                '}';
     }
 }
