@@ -1,14 +1,16 @@
 package models;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Epic extends Task {
-    private List<Subtask> subtasks;
+    private final List<Subtask> subtasks = new ArrayList<>();
+    private LocalDateTime endTime;
 
     public Epic(int id, String name, String description) {
-        super(id, name, description, TaskStatus.NEW);
-        this.subtasks = new ArrayList<>();
+        super(id, name, description, TaskStatus.NEW, Duration.ZERO, null);
     }
 
     public List<Subtask> getSubtasks() {
@@ -17,52 +19,66 @@ public class Epic extends Task {
 
     public void addSubtask(Subtask subtask) {
         subtasks.add(subtask);
-        updateStatus();
+        updateStatusAndTime();
     }
 
     public void removeSubtask(Subtask subtask) {
         subtasks.remove(subtask);
-        updateStatus();
+        updateStatusAndTime();
     }
 
-    public void updateStatus() {
+    public void updateStatusAndTime() {
         if (subtasks.isEmpty()) {
-            setStatus(TaskStatus.NEW);
-            return;
-        }
-        boolean allDone = true;
-        boolean allNew = true;
-
-        for (Subtask subtask : subtasks) {
-            if (subtask.getStatus() != TaskStatus.DONE) {
-                allDone = false;
-            }
-            if (subtask.getStatus() != TaskStatus.NEW) {
-                allNew = false;
-            }
-        }
-
-        if (allDone) {
-            setStatus(TaskStatus.DONE);
-        } else if (allNew) {
-            setStatus(TaskStatus.NEW);
+            this.status = TaskStatus.NEW;
         } else {
-            setStatus(TaskStatus.IN_PROGRESS);
+            boolean allNew = true;
+            boolean allDone = true;
+            for (Subtask st : subtasks) {
+                if (st.getStatus() != TaskStatus.NEW) allNew = false;
+                if (st.getStatus() != TaskStatus.DONE) allDone = false;
+            }
+            if (allNew) this.status = TaskStatus.NEW;
+            else if (allDone) this.status = TaskStatus.DONE;
+            else this.status = TaskStatus.IN_PROGRESS;
         }
-    }
 
-    @Override
-    public String toString() {
-        return "Epic{" +
-                "id=" + getId() +
-                ", name='" + getName() + '\'' +
-                ", status=" + getStatus() +
-                ", subtasks=" + subtasks +
-                '}';
+        // --- Время и длительность
+        Duration total = Duration.ZERO;
+        LocalDateTime minStart = null;
+        LocalDateTime maxEnd = null;
+        for (Subtask st : subtasks) {
+            if (st.getDuration() != null) total = total.plus(st.getDuration());
+            if (st.getStartTime() != null) {
+                if (minStart == null || st.getStartTime().isBefore(minStart)) minStart = st.getStartTime();
+                LocalDateTime stEnd = st.getEndTime();
+                if (stEnd != null && (maxEnd == null || stEnd.isAfter(maxEnd))) maxEnd = stEnd;
+            }
+        }
+        this.duration = total;
+        this.startTime = minStart;
+        this.endTime = maxEnd;
     }
 
     @Override
     public TaskType getType() {
         return TaskType.EPIC;
+    }
+
+    @Override
+    public LocalDateTime getEndTime() {
+        return endTime;
+    }
+
+    @Override
+    public String toString() {
+        return "Epic{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", status=" + status +
+                ", duration=" + duration +
+                ", startTime=" + startTime +
+                ", endTime=" + endTime +
+                ", subtasks=" + subtasks +
+                '}';
     }
 }

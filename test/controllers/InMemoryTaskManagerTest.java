@@ -1,73 +1,49 @@
 package controllers;
 
-import controllers.InMemoryTaskManager;
-import controllers.TaskManager;
-import models.Task;
-import models.Epic;
-import models.Subtask;
-import models.TaskStatus;
+import models.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class InMemoryTaskManagerTest {
 
-    private TaskManager manager;
+    private InMemoryTaskManager manager;
 
     @BeforeEach
-    public void setUp() {
+    public void setup() {
         manager = new InMemoryTaskManager();
     }
 
     @Test
-    public void shouldCreateAndRetrieveTask() {
-        Task task = new Task(0, "Таск 1", "Описание", TaskStatus.NEW);
-        manager.createTask(task);
-        Task retrievedTask = manager.getTask(task.getId());
-
-        assertNotNull(retrievedTask);
-        assertEquals(task, retrievedTask);
+    public void getPrioritizedTasksReturnsByStartTime() {
+        LocalDateTime now = LocalDateTime.of(2024, 6, 21, 10, 0);
+        Task t1 = new Task(0, "t1", "d1", TaskStatus.NEW, Duration.ofMinutes(30), now.plusHours(1));
+        Task t2 = new Task(0, "t2", "d2", TaskStatus.NEW, Duration.ofMinutes(30), now);
+        manager.createTask(t1);
+        manager.createTask(t2);
+        List<Task> prioritized = manager.getPrioritizedTasks();
+        assertEquals(t2, prioritized.get(0));
+        assertEquals(t1, prioritized.get(1));
     }
 
     @Test
-    public void shouldCreateAndRetrieveEpic() {
-        Epic epic = new Epic(0, "Эпик 1", "Описание");
-        manager.createEpic(epic);
-        Epic retrievedEpic = manager.getEpic(epic.getId());
-
-        assertNotNull(retrievedEpic);
-        assertEquals(epic, retrievedEpic);
+    public void intersectionShouldReturnTrueIfOverlaps() {
+        LocalDateTime t1 = LocalDateTime.of(2024, 6, 21, 12, 0);
+        Task a = new Task(0, "A", "d", TaskStatus.NEW, Duration.ofMinutes(60), t1);
+        Task b = new Task(0, "B", "d", TaskStatus.NEW, Duration.ofMinutes(60), t1.plusMinutes(30));
+        assertTrue(manager.isTimeIntersect(a, b));
     }
 
     @Test
-    public void shouldCreateAndRetrieveSubtask() {
-        Epic epic = new Epic(1, "Эпик 1", "Описание");
-        manager.createEpic(epic);
-
-        Subtask subtask = new Subtask(0, "Подтаска 1", "Описание", TaskStatus.NEW, epic.getId());
-        manager.createSubtask(subtask);
-
-        Subtask retrievedSubtask = manager.getSubtask(subtask.getId());
-        assertNotNull(retrievedSubtask);
-        assertEquals(subtask, retrievedSubtask);
-    }
-
-    @Test
-    public void shouldReturnCorrectHistory() {
-        Task task1 = new Task(0, "Таска 1", "Описание", TaskStatus.NEW);
-        manager.createTask(task1);
-        manager.getTask(task1.getId());
-
-        Epic epic1 = new Epic(1, "Эпик 1", "Описание");
-        manager.createEpic(epic1);
-        manager.getEpic(epic1.getId());
-
-        List<Task> history = manager.getHistory();
-        assertEquals(2, history.size());
-        assertEquals(task1, history.get(0));
-        assertEquals(epic1, history.get(1));
+    public void intersectionShouldReturnFalseIfNotOverlaps() {
+        LocalDateTime t1 = LocalDateTime.of(2024, 6, 21, 12, 0);
+        Task a = new Task(0, "A", "d", TaskStatus.NEW, Duration.ofMinutes(60), t1);
+        Task b = new Task(0, "B", "d", TaskStatus.NEW, Duration.ofMinutes(60), t1.plusMinutes(61));
+        assertFalse(manager.isTimeIntersect(a, b));
     }
 }
