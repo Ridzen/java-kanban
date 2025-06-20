@@ -11,7 +11,6 @@ public class InMemoryTaskManager implements TaskManager {
     protected HistoryManager historyManager = Managers.getDefaultHistory();
     protected int currentId = 1;
 
-    // Приоритет: startTime (null — в конец), id (для уникальности)
     protected final Set<Task> prioritizedTasks = new TreeSet<>((a, b) -> {
         LocalDateTime at = a.getStartTime();
         LocalDateTime bt = b.getStartTime();
@@ -23,7 +22,9 @@ public class InMemoryTaskManager implements TaskManager {
         return Integer.compare(a.getId(), b.getId());
     });
 
-    protected int generateId() { return currentId++; }
+    protected int generateId() {
+        return currentId++;
+    }
 
     @Override
     public void createTask(Task task) {
