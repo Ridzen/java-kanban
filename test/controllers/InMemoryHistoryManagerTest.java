@@ -5,6 +5,8 @@ import models.TaskStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -20,7 +22,7 @@ public class InMemoryHistoryManagerTest {
 
     @Test
     public void shouldAddTaskToHistory() {
-        Task task = new Task(1, "Тестовая Таска", "Описание", TaskStatus.NEW);
+        Task task = new Task(1, "Тестовая Таска", "Описание", TaskStatus.NEW, Duration.ofMinutes(60), LocalDateTime.now());
         historyManager.add(task);
 
         List<Task> history = historyManager.getHistory();
@@ -35,11 +37,10 @@ public class InMemoryHistoryManagerTest {
         assertTrue(history.isEmpty());
     }
 
-
     @Test
     public void shouldRemoveTaskFromHistoryById() {
-        Task task1 = new Task(1, "Task 1", "Desc", TaskStatus.NEW);
-        Task task2 = new Task(2, "Task 2", "Desc", TaskStatus.NEW);
+        Task task1 = new Task(1, "Task 1", "Desc", TaskStatus.NEW, Duration.ofMinutes(30), LocalDateTime.now());
+        Task task2 = new Task(2, "Task 2", "Desc", TaskStatus.NEW, Duration.ofMinutes(30), LocalDateTime.now());
         historyManager.add(task1);
         historyManager.add(task2);
 
@@ -52,9 +53,9 @@ public class InMemoryHistoryManagerTest {
 
     @Test
     public void shouldRemoveHeadTailAndMiddle() {
-        Task t1 = new Task(1, "T1", "D", TaskStatus.NEW);
-        Task t2 = new Task(2, "T2", "D", TaskStatus.NEW);
-        Task t3 = new Task(3, "T3", "D", TaskStatus.NEW);
+        Task t1 = new Task(1, "T1", "D", TaskStatus.NEW, Duration.ofMinutes(30), LocalDateTime.now());
+        Task t2 = new Task(2, "T2", "D", TaskStatus.NEW, Duration.ofMinutes(30), LocalDateTime.now());
+        Task t3 = new Task(3, "T3", "D", TaskStatus.NEW, Duration.ofMinutes(30), LocalDateTime.now());
 
         historyManager.add(t1);
         historyManager.add(t2);
@@ -76,7 +77,7 @@ public class InMemoryHistoryManagerTest {
 
     @Test
     public void shouldKeepOnlyLastOccurrenceOfTask() {
-        Task task = new Task(1, "Duplicate", "Desc", TaskStatus.NEW);
+        Task task = new Task(1, "Duplicate", "Desc", TaskStatus.NEW, Duration.ofMinutes(30), LocalDateTime.now());
         historyManager.add(task);
         historyManager.add(task); // повторный просмотр
 

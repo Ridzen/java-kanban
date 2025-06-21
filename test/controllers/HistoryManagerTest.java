@@ -1,11 +1,11 @@
 package controllers;
 
-import controllers.HistoryManager;
-import controllers.InMemoryHistoryManager;
 import models.Task;
 import models.TaskStatus;
 import org.junit.jupiter.api.Test;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -16,7 +16,7 @@ public class HistoryManagerTest {
 
     @Test
     public void shouldAddTaskToHistoryAndRetrieveIt() {
-        Task task = new Task(1, "Тестовая таска", "Описание", TaskStatus.NEW);
+        Task task = new Task(1, "Тестовая таска", "Описание", TaskStatus.NEW, Duration.ofMinutes(45), LocalDateTime.now());
         historyManager.add(task);
 
         List<Task> history = historyManager.getHistory();
@@ -32,4 +32,3 @@ public class HistoryManagerTest {
         assertTrue(history.isEmpty());
     }
 }
-

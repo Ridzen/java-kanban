@@ -1,27 +1,35 @@
 package models;
 
-import models.Task;
-import models.TaskStatus;
 import org.junit.jupiter.api.Test;
+import java.time.Duration;
+import java.time.LocalDateTime;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 public class TaskTest {
 
     @Test
-    public void shouldCreateTaskWithGivenParameters() {
-        Task task = new Task(1, "Тестовая таска", "Описание", TaskStatus.NEW);
-
+    public void shouldCreateTaskWithAllFields() {
+        LocalDateTime now = LocalDateTime.now();
+        Task task = new Task(1, "Test", "Descl", TaskStatus.NEW, Duration.ofMinutes(60), now);
         assertEquals(1, task.getId());
-        assertEquals("Тестовая таска", task.getName());
-        assertEquals("Описание", task.getDescription());
+        assertEquals("Test", task.getName());
+        assertEquals("Descl", task.getDescription());
         assertEquals(TaskStatus.NEW, task.getStatus());
+        assertEquals(Duration.ofMinutes(60), task.getDuration());
+        assertEquals(now, task.getStartTime());
     }
 
     @Test
-    public void shouldUpdateTaskStatus() {
-        Task task = new Task(1, "Тестовая таска", "Описание", TaskStatus.NEW);
-        task.setStatus(TaskStatus.DONE);
+    public void getEndTimeShouldReturnStartPlusDuration() {
+        LocalDateTime start = LocalDateTime.of(2024, 6, 21, 10, 0);
+        Task task = new Task(2, "Test2", "Desc2", TaskStatus.NEW, Duration.ofMinutes(90), start);
+        assertEquals(start.plusMinutes(90), task.getEndTime());
+    }
 
-        assertEquals(TaskStatus.DONE, task.getStatus());
+    @Test
+    public void getEndTimeShouldReturnNullIfStartNull() {
+        Task task = new Task(3, "Test", "Desc", TaskStatus.NEW, Duration.ofMinutes(60), null);
+        assertNull(task.getEndTime());
     }
 }
