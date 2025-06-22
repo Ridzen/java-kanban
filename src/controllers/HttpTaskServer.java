@@ -43,7 +43,6 @@ public class HttpTaskServer {
         server.stop(0);
         System.out.println("HTTP-сервер остановлен");
     }
-    
 
     class TasksHandler extends BaseHttpHandler {
         @Override
@@ -60,8 +59,7 @@ public class HttpTaskServer {
                     } else {
                         sendText(exchange, gson.toJson(manager.getAllTasks()), 200);
                     }
-                }
-                else if ("POST".equals(method)) {
+                } else if ("POST".equals(method)) {
                     Task task = readTask(exchange, Task.class);
                     if (task.getId() == 0) {
                         if (manager instanceof InMemoryTaskManager imtm && imtm.hasIntersections(task)) {
@@ -78,8 +76,7 @@ public class HttpTaskServer {
                         manager.updateTask(task);
                         sendText(exchange, "Updated", 201);
                     }
-                }
-                else if ("DELETE".equals(method)) {
+                } else if ("DELETE".equals(method)) {
                     if (query != null && query.startsWith("id=")) {
                         int id = getIdFromQuery(query);
                         manager.deleteTaskById(id);
@@ -114,8 +111,7 @@ public class HttpTaskServer {
                     } else {
                         sendText(exchange, gson.toJson(manager.getAllSubtasks()), 200);
                     }
-                }
-                else if ("POST".equals(method)) {
+                } else if ("POST".equals(method)) {
                     Subtask subtask = readTask(exchange, Subtask.class);
                     if (subtask.getId() == 0) {
                         if (manager instanceof InMemoryTaskManager imtm && imtm.hasIntersections(subtask)) {
@@ -132,8 +128,7 @@ public class HttpTaskServer {
                         manager.updateSubtask(subtask);
                         sendText(exchange, "Updated", 201);
                     }
-                }
-                else if ("DELETE".equals(method)) {
+                } else if ("DELETE".equals(method)) {
                     if (query != null && query.startsWith("id=")) {
                         int id = getIdFromQuery(query);
                         manager.deleteSubtaskById(id);
@@ -168,8 +163,7 @@ public class HttpTaskServer {
                     } else {
                         sendText(exchange, gson.toJson(manager.getAllEpics()), 200);
                     }
-                }
-                else if ("POST".equals(method)) {
+                } else if ("POST".equals(method)) {
                     Epic epic = readTask(exchange, Epic.class);
                     if (epic.getId() == 0) {
                         manager.createEpic(epic);
@@ -178,8 +172,7 @@ public class HttpTaskServer {
                         manager.updateEpic(epic);
                         sendText(exchange, "Updated", 201);
                     }
-                }
-                else if ("DELETE".equals(method)) {
+                } else if ("DELETE".equals(method)) {
                     if (query != null && query.startsWith("id=")) {
                         int id = getIdFromQuery(query);
                         manager.deleteEpicById(id);
