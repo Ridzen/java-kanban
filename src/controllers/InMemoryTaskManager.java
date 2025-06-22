@@ -3,6 +3,7 @@ package controllers;
 import models.*;
 import java.time.LocalDateTime;
 import java.util.*;
+import exceptions.*;
 
 public class InMemoryTaskManager implements TaskManager {
 
@@ -60,6 +61,7 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public Task getTask(int id) {
         Task task = tasks.get(id);
+        if (task == null) throw new NotFoundException("Task not found with id=" + id);
         historyManager.add(task);
         return task;
     }
@@ -67,6 +69,7 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public Epic getEpic(int id) {
         Epic epic = epics.get(id);
+        if (epic == null) throw new NotFoundException("Epic not found with id=" + id);
         historyManager.add(epic);
         return epic;
     }
@@ -74,6 +77,7 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public Subtask getSubtask(int id) {
         Subtask subtask = subtasks.get(id);
+        if (subtask == null) throw new NotFoundException("Subtask not found with id=" + id);
         historyManager.add(subtask);
         return subtask;
     }
@@ -213,7 +217,7 @@ public class InMemoryTaskManager implements TaskManager {
         return !(a.getEndTime().isBefore(b.getStartTime()) || b.getEndTime().isBefore(a.getStartTime()));
     }
 
-    private boolean hasIntersections(Task task) {
+    protected boolean hasIntersections(Task task) {
         return prioritizedTasks.stream()
                 .filter(t -> t.getId() != task.getId())
                 .anyMatch(t -> isTimeIntersect(t, task));
