@@ -3,7 +3,7 @@ package controllers;
 import com.google.gson.Gson;
 import models.*;
 import org.junit.jupiter.api.*;
-import utils.GsonFactory;
+import http.GsonFactory;
 
 import java.io.IOException;
 import java.net.URI;
@@ -23,7 +23,7 @@ public class HttpTaskManagerTasksTest {
     public void setUp() throws IOException {
         manager = new InMemoryTaskManager();
         taskServer = new HttpTaskServer(manager);
-        gson = GsonFactory.build(); // используем только адаптер!
+        gson = GsonFactory.build();
         taskServer.start();
         manager.clearTasks();
         manager.clearEpics();
