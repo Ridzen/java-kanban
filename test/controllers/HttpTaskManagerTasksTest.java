@@ -1,11 +1,10 @@
 package controllers;
 
 import com.google.gson.Gson;
-import controllers.HttpTaskServer;
-import controllers.InMemoryTaskManager;
-import controllers.TaskManager;
 import models.*;
 import org.junit.jupiter.api.*;
+import utils.GsonFactory;
+
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -13,7 +12,6 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class HttpTaskManagerTasksTest {
@@ -25,7 +23,7 @@ public class HttpTaskManagerTasksTest {
     public void setUp() throws IOException {
         manager = new InMemoryTaskManager();
         taskServer = new HttpTaskServer(manager);
-        gson = HttpTaskServer.getGson();
+        gson = GsonFactory.build(); // используем только адаптер!
         taskServer.start();
         manager.clearTasks();
         manager.clearEpics();

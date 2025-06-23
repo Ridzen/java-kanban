@@ -1,11 +1,11 @@
 package controllers;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.sun.net.httpserver.*;
-import exceptions.NotFoundException;
-import http.BaseHttpHandler;
+import com.sun.net.httpserver.HttpServer;
+import com.sun.net.httpserver.HttpExchange;
+import http.*;
 import models.*;
+import exceptions.NotFoundException;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -17,7 +17,9 @@ public class HttpTaskServer {
     public static final int PORT = 8080;
     private final HttpServer server;
     private final TaskManager manager;
-    private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
+
+    private static final Gson gson = utils.GsonFactory.build();
+
 
     public HttpTaskServer() throws IOException {
         this(Managers.getDefault());
@@ -27,11 +29,11 @@ public class HttpTaskServer {
         this.manager = manager;
         this.server = HttpServer.create(new InetSocketAddress(PORT), 0);
 
-        server.createContext("/tasks", new TasksHandler());
-        server.createContext("/subtasks", new SubtasksHandler());
-        server.createContext("/epics", new EpicsHandler());
-        server.createContext("/history", new HistoryHandler());
-        server.createContext("/prioritized", new PrioritizedHandler());
+        server.createContext("/tasks", new TasksHandler(manager));
+        server.createContext("/subtasks", new SubtasksHandler(manager));
+        server.createContext("/epics", new EpicsHandler(manager));
+        server.createContext("/history", new HistoryHandler(manager));
+        server.createContext("/prioritized", new PrioritizedHandler(manager));
     }
 
     public void start() {
@@ -44,7 +46,9 @@ public class HttpTaskServer {
         System.out.println("HTTP-сервер остановлен");
     }
 
-    class TasksHandler extends BaseHttpHandler {
+    static class TasksHandler extends BaseHttpHandler {
+        public TasksHandler(TaskManager manager) { super(manager); }
+
         @Override
         public void handle(HttpExchange exchange) throws IOException {
             try {
@@ -60,7 +64,8 @@ public class HttpTaskServer {
                         sendText(exchange, gson.toJson(manager.getAllTasks()), 200);
                     }
                 } else if ("POST".equals(method)) {
-                    Task task = readTask(exchange, Task.class);
+                    String body = readBody(exchange);
+                    Task task = gson.fromJson(body, Task.class);
                     if (task.getId() == 0) {
                         if (manager instanceof InMemoryTaskManager imtm && imtm.hasIntersections(task)) {
                             sendHasIntersections(exchange);
@@ -96,7 +101,9 @@ public class HttpTaskServer {
         }
     }
 
-    class SubtasksHandler extends BaseHttpHandler {
+    static class SubtasksHandler extends BaseHttpHandler {
+        public SubtasksHandler(TaskManager manager) { super(manager); }
+
         @Override
         public void handle(HttpExchange exchange) throws IOException {
             try {
@@ -112,7 +119,8 @@ public class HttpTaskServer {
                         sendText(exchange, gson.toJson(manager.getAllSubtasks()), 200);
                     }
                 } else if ("POST".equals(method)) {
-                    Subtask subtask = readTask(exchange, Subtask.class);
+                    String body = readBody(exchange);
+                    Subtask subtask = gson.fromJson(body, Subtask.class);
                     if (subtask.getId() == 0) {
                         if (manager instanceof InMemoryTaskManager imtm && imtm.hasIntersections(subtask)) {
                             sendHasIntersections(exchange);
@@ -148,7 +156,9 @@ public class HttpTaskServer {
         }
     }
 
-    class EpicsHandler extends BaseHttpHandler {
+    static class EpicsHandler extends BaseHttpHandler {
+        public EpicsHandler(TaskManager manager) { super(manager); }
+
         @Override
         public void handle(HttpExchange exchange) throws IOException {
             try {
@@ -164,7 +174,8 @@ public class HttpTaskServer {
                         sendText(exchange, gson.toJson(manager.getAllEpics()), 200);
                     }
                 } else if ("POST".equals(method)) {
-                    Epic epic = readTask(exchange, Epic.class);
+                    String body = readBody(exchange);
+                    Epic epic = gson.fromJson(body, Epic.class);
                     if (epic.getId() == 0) {
                         manager.createEpic(epic);
                         sendText(exchange, "Created", 201);
@@ -192,7 +203,9 @@ public class HttpTaskServer {
         }
     }
 
-    class HistoryHandler extends BaseHttpHandler {
+    static class HistoryHandler extends BaseHttpHandler {
+        public HistoryHandler(TaskManager manager) { super(manager); }
+
         @Override
         public void handle(HttpExchange exchange) throws IOException {
             try {
@@ -207,7 +220,9 @@ public class HttpTaskServer {
         }
     }
 
-    class PrioritizedHandler extends BaseHttpHandler {
+    static class PrioritizedHandler extends BaseHttpHandler {
+        public PrioritizedHandler(TaskManager manager) { super(manager); }
+
         @Override
         public void handle(HttpExchange exchange) throws IOException {
             try {
@@ -223,25 +238,6 @@ public class HttpTaskServer {
                 sendServerError(exchange, "Internal Server Error");
             }
         }
-    }
-
-    private int getIdFromQuery(String query) {
-        if (query == null) return 0;
-        for (String pair : query.split("&")) {
-            String[] kv = pair.split("=");
-            if ("id".equals(kv[0]) && kv.length > 1) return Integer.parseInt(kv[1]);
-        }
-        return 0;
-    }
-
-    private <T extends Task> T readTask(HttpExchange exchange, Class<T> clazz) throws IOException {
-        InputStream is = exchange.getRequestBody();
-        String body = new String(is.readAllBytes(), StandardCharsets.UTF_8);
-        return gson.fromJson(body, clazz);
-    }
-
-    public static Gson getGson() {
-        return new GsonBuilder().setPrettyPrinting().create();
     }
 
     public static void main(String[] args) throws IOException {
