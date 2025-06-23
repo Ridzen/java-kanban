@@ -1,40 +1,35 @@
-package utils;
+package http;
 
 import com.google.gson.*;
 import java.lang.reflect.Type;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class GsonFactory {
     public static Gson build() {
-        return new GsonBuilder()
-                .setPrettyPrinting()
-                .registerTypeAdapter(Duration.class, new DurationAdapter())
-                .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
-                .create();
-    }
-
-    public static class DurationAdapter implements JsonSerializer<Duration>, JsonDeserializer<Duration> {
-        @Override
-        public JsonElement serialize(Duration src, Type typeOfSrc, JsonSerializationContext context) {
-            return new JsonPrimitive(src == null ? null : src.toString());
-        }
-
-        @Override
-        public Duration deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
-            return (json == null || json.getAsString().isEmpty()) ? null : Duration.parse(json.getAsString());
-        }
-    }
-
-    public static class LocalDateTimeAdapter implements JsonSerializer<LocalDateTime>, JsonDeserializer<LocalDateTime> {
-        @Override
-        public JsonElement serialize(LocalDateTime src, Type typeOfSrc, JsonSerializationContext context) {
-            return new JsonPrimitive(src == null ? null : src.toString());
-        }
-
-        @Override
-        public LocalDateTime deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
-            return (json == null || json.getAsString().isEmpty()) ? null : LocalDateTime.parse(json.getAsString());
-        }
+        GsonBuilder builder = new GsonBuilder();
+        builder.registerTypeAdapter(Duration.class, new JsonSerializer<Duration>() {
+            public JsonElement serialize(Duration src, Type typeOfSrc, JsonSerializationContext context) {
+                return new JsonPrimitive(src.toString());
+            }
+        });
+        builder.registerTypeAdapter(Duration.class, new JsonDeserializer<Duration>() {
+            public Duration deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) {
+                return Duration.parse(json.getAsString());
+            }
+        });
+        builder.registerTypeAdapter(LocalDateTime.class, new JsonSerializer<LocalDateTime>() {
+            public JsonElement serialize(LocalDateTime src, Type typeOfSrc, JsonSerializationContext context) {
+                return new JsonPrimitive(src.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+            }
+        });
+        builder.registerTypeAdapter(LocalDateTime.class, new JsonDeserializer<LocalDateTime>() {
+            public LocalDateTime deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) {
+                return LocalDateTime.parse(json.getAsString(), DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+            }
+        });
+        builder.setPrettyPrinting();
+        return builder.create();
     }
 }

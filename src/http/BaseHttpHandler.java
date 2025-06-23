@@ -1,21 +1,19 @@
 package http;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
 import controllers.TaskManager;
-
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.io.InputStream;
 
-public abstract class BaseHttpHandler implements HttpHandler {
+public abstract class BaseHttpHandler implements com.sun.net.httpserver.HttpHandler {
     protected final TaskManager manager;
-    protected static final Gson gson = new GsonBuilder().setPrettyPrinting().create();
+    protected final Gson gson;
 
-    public BaseHttpHandler(TaskManager manager) {
+    public BaseHttpHandler(TaskManager manager, Gson gson) {
         this.manager = manager;
+        this.gson = gson;
     }
 
     protected String readBody(HttpExchange exchange) throws IOException {

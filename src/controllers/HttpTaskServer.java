@@ -15,9 +15,7 @@ public class HttpTaskServer {
     public static final int PORT = 8080;
     private final HttpServer server;
     private final TaskManager manager;
-
-    private static final Gson gson = utils.GsonFactory.build();
-
+    private static final Gson gson = GsonFactory.build();
 
     public HttpTaskServer() throws IOException {
         this(Managers.getDefault());
@@ -27,11 +25,11 @@ public class HttpTaskServer {
         this.manager = manager;
         this.server = HttpServer.create(new InetSocketAddress(PORT), 0);
 
-        server.createContext("/tasks", new TasksHandler(manager));
-        server.createContext("/subtasks", new SubtasksHandler(manager));
-        server.createContext("/epics", new EpicsHandler(manager));
-        server.createContext("/history", new HistoryHandler(manager));
-        server.createContext("/prioritized", new PrioritizedHandler(manager));
+        server.createContext("/tasks", new TasksHandler(manager, gson));
+        server.createContext("/subtasks", new SubtasksHandler(manager, gson));
+        server.createContext("/epics", new EpicsHandler(manager, gson));
+        server.createContext("/history", new HistoryHandler(manager, gson));
+        server.createContext("/prioritized", new PrioritizedHandler(manager, gson));
     }
 
     public void start() {
@@ -45,8 +43,8 @@ public class HttpTaskServer {
     }
 
     static class TasksHandler extends BaseHttpHandler {
-        public TasksHandler(TaskManager manager) {
-            super(manager);
+        public TasksHandler(TaskManager manager, Gson gson) {
+            super(manager, gson);
         }
 
         @Override
@@ -102,8 +100,8 @@ public class HttpTaskServer {
     }
 
     static class SubtasksHandler extends BaseHttpHandler {
-        public SubtasksHandler(TaskManager manager) {
-            super(manager);
+        public SubtasksHandler(TaskManager manager, Gson gson) {
+            super(manager, gson);
         }
 
         @Override
@@ -159,8 +157,8 @@ public class HttpTaskServer {
     }
 
     static class EpicsHandler extends BaseHttpHandler {
-        public EpicsHandler(TaskManager manager) {
-            super(manager);
+        public EpicsHandler(TaskManager manager, Gson gson) {
+            super(manager, gson);
         }
 
         @Override
@@ -208,8 +206,8 @@ public class HttpTaskServer {
     }
 
     static class HistoryHandler extends BaseHttpHandler {
-        public HistoryHandler(TaskManager manager) {
-            super(manager);
+        public HistoryHandler(TaskManager manager, Gson gson) {
+            super(manager, gson);
         }
 
         @Override
@@ -227,8 +225,8 @@ public class HttpTaskServer {
     }
 
     static class PrioritizedHandler extends BaseHttpHandler {
-        public PrioritizedHandler(TaskManager manager) {
-            super(manager);
+        public PrioritizedHandler(TaskManager manager, Gson gson) {
+            super(manager, gson);
         }
 
         @Override
