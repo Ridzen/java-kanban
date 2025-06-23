@@ -8,9 +8,7 @@ import models.*;
 import exceptions.NotFoundException;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.InetSocketAddress;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 public class HttpTaskServer {
@@ -47,7 +45,9 @@ public class HttpTaskServer {
     }
 
     static class TasksHandler extends BaseHttpHandler {
-        public TasksHandler(TaskManager manager) { super(manager); }
+        public TasksHandler(TaskManager manager) {
+            super(manager);
+        }
 
         @Override
         public void handle(HttpExchange exchange) throws IOException {
@@ -102,7 +102,9 @@ public class HttpTaskServer {
     }
 
     static class SubtasksHandler extends BaseHttpHandler {
-        public SubtasksHandler(TaskManager manager) { super(manager); }
+        public SubtasksHandler(TaskManager manager) {
+            super(manager);
+        }
 
         @Override
         public void handle(HttpExchange exchange) throws IOException {
@@ -157,7 +159,9 @@ public class HttpTaskServer {
     }
 
     static class EpicsHandler extends BaseHttpHandler {
-        public EpicsHandler(TaskManager manager) { super(manager); }
+        public EpicsHandler(TaskManager manager) {
+            super(manager);
+        }
 
         @Override
         public void handle(HttpExchange exchange) throws IOException {
@@ -204,7 +208,9 @@ public class HttpTaskServer {
     }
 
     static class HistoryHandler extends BaseHttpHandler {
-        public HistoryHandler(TaskManager manager) { super(manager); }
+        public HistoryHandler(TaskManager manager) {
+            super(manager);
+        }
 
         @Override
         public void handle(HttpExchange exchange) throws IOException {
@@ -221,7 +227,9 @@ public class HttpTaskServer {
     }
 
     static class PrioritizedHandler extends BaseHttpHandler {
-        public PrioritizedHandler(TaskManager manager) { super(manager); }
+        public PrioritizedHandler(TaskManager manager) {
+            super(manager);
+        }
 
         @Override
         public void handle(HttpExchange exchange) throws IOException {
